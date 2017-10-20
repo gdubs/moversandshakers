@@ -30,9 +30,8 @@ router.post('/route', function* () {
 router.get('/route/:token', function* () {
 	yield delay(getRandomInt(0, 5))
 
-	// temp gor 
-	//const dice = getRandomInt(0, 4)
-	const dice = 3;
+	const dice = getRandomInt(0, 4)
+	
 
 	if (!dice) {
 		this.status = 500
