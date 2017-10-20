@@ -13,6 +13,7 @@ class App extends React.Component{
         //this.routeChangedHandler = this.routeChangedHandler.bind(this);
         this.generateRoute = this.generateRoute.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.getRoutes = this.getRoutes.bind(this);
     }
     componentWillMount(){
         this.setState({ fromLocation: '', toLocation: '', processing: false, route: null });
@@ -40,22 +41,33 @@ class App extends React.Component{
                         
                         data.auth = response.data;
 
-                        return RouteProvider.getRoutes(data.auth);
+                        return this.getRoutes(data);
                     })
-                    .then(res => {
+                    .catch(err =>{
+                        this.setState(() => {
+                                console.log('internal server err ' + err)
+                                return { error: { message: 'We\'re having server issues at the moment. Please try again.'}, processing: false}
+                            })
+                    });
+
+                   
+    }
+    getRoutes(data){
+        RouteProvider.getRoutes(data.auth)
+                    .then((res) => {
                         //console.log(JSON.stringify(res));
                         // for the sake of the challenge, the status will be checked, to see if 
                         // provider will be called again.
 
                         switch(res.data.status){
-                            case 'in progress':
+                            /*case 'in progress':
                                 console.log('for the sake of the challenge..calling this again');
-                                RouteProvider.getRoutes(data.auth);
-                                break;
+                                return generateRoute();
+                                break;*/
                             case 'failure':
                                 //console.log('handle failure');
                                 this.setState(() => {
-                                    return { error: { message: 'Failed generating the route. ' + res.data.error + '. Please try again.'}}
+                                    return { error: { message: 'Failed generating the route. ' + res.data.error + '. Please try again.'}, processing: false, route:null}
                                 })
                                 break;
                             case 'success':
@@ -78,25 +90,20 @@ class App extends React.Component{
                                 
 
                                 this.setState(() => {
-                                    return { route : route }
+                                    return { route : route, processing: false }
                                 })
                                 break;
                             default:
-                                console.log('this state' + JSON.stringify(this.state));
+                                this.getRoutes(data);
                         }
                         
-                        this.setState(() => {
-                                    return { processing: false }
-                                })
-                    })
-                    .catch(err =>{
+                    }).catch(err =>{
                         this.setState(() => {
                                 console.log('internal server err ' + err)
                                 return { error: { message: 'We\'re having server issues at the moment. Please try again.'}, processing: false}
                             })
                     });
-
-                   
+        
     }
     render(){
         var formStyle = {

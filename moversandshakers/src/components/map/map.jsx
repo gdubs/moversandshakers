@@ -25,10 +25,10 @@ class Map extends React.Component{
     }
     componentDidUpdate(prevProps, prevState){
         console.log('componentdidupdate')
-        if(prevProps.route)
+       // if(prevProps.route)
             this.initMap();
-        else
-            this.resetMap();
+       // else
+         //   this.resetMap();
     }
     componentDidMount(){
         // assigns the functions to the window scope variables
