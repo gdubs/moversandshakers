@@ -2,6 +2,7 @@ import React from 'react';
 import { render } from 'react-dom';
 import Map from './components/map/map.jsx';
 import RouteProvider from './providers/routeProvider.jsx';
+import Validation from './components/validation/validation.jsx';
 // import Location from './components/location/location.jsx';
 
 import { Link,Route,Switch } from 'react-router-dom';
@@ -125,8 +126,9 @@ class App extends React.Component{
                 {
                     this.state.error
                     ?
-                        <div>
-                            {this.state.error.message}
+                        <div className="row">
+                            {/* {this.state.error.message} */}
+                            <Validation message={this.state.error.message}/>
                         </div>
                     :
                         null
