@@ -3,6 +3,7 @@ import { render } from 'react-dom';
 import Map from './components/map/map.jsx';
 import RouteProvider from './providers/routeProvider.jsx';
 import Validation from './components/validation/validation.jsx';
+import Loader from './components/utils/loader.jsx';
 // import Location from './components/location/location.jsx';
 
 import { Link,Route,Switch } from 'react-router-dom';
@@ -15,24 +16,41 @@ class App extends React.Component{
         this.generateRoute = this.generateRoute.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.getRoutes = this.getRoutes.bind(this);
+        this.validInput = this.validInput.bind(this);
     }
     componentWillMount(){
-        this.setState({ fromLocation: '', toLocation: '', processing: false, route: null });
+        this.setState({ fromLocation: '', 
+                        toLocation:  '', 
+                        processing: false, 
+                        route: null });
     }
     
     handleChange(e){
         e.persist();
         this.setState((prevState, props)=>{
-            return { [e.target.name]: e.target.value };
+            return { [e.target.name] : e.target.value };
         })
     }
-    
+    validInput(e){
+        let valid = false;
+
+        valid = (!this.state.fromLocation || !this.state.toLocation) ? false : true;
+
+        return valid;
+    }
     generateRoute(e){
         e.persist();
-              
+
         this.setState(()=>{
             return { processing: true, error: null, route: null }
         })
+
+        if(!this.validInput(e)){
+            this.setState(()=>{
+                return { processing: false, error : { message: 'Please enter from and to Location.'}}
+            })
+            return;
+        }
 
         var data = { auth: '' }
 
@@ -127,23 +145,25 @@ class App extends React.Component{
                     this.state.error
                     ?
                         <div className="row">
-                            {/* {this.state.error.message} */}
                             <Validation message={this.state.error.message}/>
                         </div>
                     :
                         null
                 }
                 <div className="row" style={formStyle}>
-                    <input type="text" value={this.state.fromLocation} name="fromLocation" placeholder="From Where?" className="form-control" onChange={this.handleChange} />
-                    <input type="text" value={this.state.toLocation} name="toLocation" placeholder="To Where?" className="form-control" onChange={this.handleChange} />
-                    
+                    <div className="input-padding">
+                        <input type="text" value={this.state.fromLocation} name="fromLocation" placeholder="From Where?" className={"form-control " + (!this.state.fromLocation ? 'invalid' : '')} onChange={this.handleChange} />
+                    </div>
+                    <div className="input-padding">
+                        <input type="text" value={this.state.toLocation} name="toLocation" placeholder="To Where?" className={"form-control " + (!this.state.toLocation ? 'invalid' : '')} onChange={this.handleChange} />
+                    </div>
                     <button type="button" className="btn btn-default preview-add-button" onClick={this.generateRoute}>
                         Get Route
                     </button>
                 </div>
                 {
                     this.state.processing
-                    ? <div>Generating Route...</div>
+                    ? <Loader />
                     : null
                 }
                 <Map route={this.state.route}/>
